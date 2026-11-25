@@ -16,13 +16,26 @@ public abstract class DataPoint {
     private Integer intervalIndex;
 
     /**
-     *
-     * @param repo
-     * @return
+     * Validates this data point's fields, returning a warning message if invalid or
+     * empty if valid.
      */
     public abstract Optional<String> validate(Repo repo);
 
-    public final ObjectNode toJson(final ObjectMapper mapper);
+    /**
+     * Converts this data point into a JSON object containing its interval,
+     * interval index, and type-specific measurement fields.
+     */
+    public final ObjectNode toJson(final ObjectMapper mapper) {
+        ObjectNode node = mapper.createObjectNode();
+        node.put("interval", interval);
+        node.put("intervalIndex", intervalIndex);
+        addSpecificFields(node);
+        return node;
+    }
 
+    /**
+     * Adds the measurement fields specific to this data point type to the
+     * given JSON object node.
+     */
     protected abstract void addSpecificFields(ObjectNode node);
 }

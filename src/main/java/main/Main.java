@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import fileio.CommandInput;
 import fileio.InputLoader;
+import structures.commands.Command;
+import structures.commands.CommandFactory;
 import structures.repository.Repo;
 
 /**
@@ -59,15 +61,8 @@ public final class Main {
         List<CommandInput> cmds = inputLoader.getCommands();
 
         for (CommandInput cmd : cmds) {
-            String command = cmd.getCommand();
-            switch (command) {
-                case "startImport" -> repo.startImportCmd(cmd);
-                case "stopImport" -> repo.stopImportCmd(cmd);
-                case "import" -> repo.importCmd(cmd);
-                case "patch" -> repo.patchCmd(cmd);
-                case "get" -> repo.patchCmd(cmd);
-                default -> System.out.println("[ERROR] Shouldn't be able to get here");
-            }
+            Command command = CommandFactory.create(cmd);
+            command.execute(repo.getSimClk(), repo, output, MAPPER);
         }
 
         File outputFile = new File(outputPath);
