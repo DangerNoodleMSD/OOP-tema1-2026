@@ -7,10 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import structures.repository.Repo;
-import structures.types.enums.DataType;
 
 public abstract class DataPoint {
-    private DataType type;
     private LocalDate date;
     private String interval;
     private Integer intervalIndex;

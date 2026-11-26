@@ -11,13 +11,13 @@ import structures.types.enums.DataType;
  * DailyRepo
  */
 public class DailyRepo {
-    private final int intervalCount = 96;
+    private static final int INTERVAL_COUNT = 96;
     private DataType type;
     private TreeMap<Integer, DataPoint> dataPoints;
 
     public DailyRepo(final DataType type) {
         dataPoints = new TreeMap<>();
-        for (int i = 1; i <= intervalCount; i++) {
+        for (int i = 1; i <= INTERVAL_COUNT; i++) {
             dataPoints.put(i, null);
         }
         this.type = type;
