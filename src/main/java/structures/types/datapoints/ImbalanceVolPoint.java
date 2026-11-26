@@ -12,7 +12,23 @@ public final class ImbalanceVolPoint extends DataPoint {
 
     @Override
     public Optional<String> validate(final Repo repo) {
-        // TODO Auto-generated method stub
+        if (positiveImbalanceVol == null) {
+            return Optional.of("PositiveImbalanceVol is null; interval skipped.");
+        }
+
+        if (positiveImbalanceVol < 0.0) {
+            return Optional.of("PositiveImbalanceVol " + positiveImbalanceVol
+                    + " is below the minimum allowed value 0; interval skipped.");
+        }
+
+        if (negativeImbalanceVol == null) {
+            return Optional.of("NegativeImbalanceVol is null; interval skipped.");
+        }
+
+        if (negativeImbalanceVol < 0.0) {
+            return Optional.of("NegativeImbalanceVol " + negativeImbalanceVol
+                    + " is below the minimum allowed value 0; interval skipped.");
+        }
         return Optional.empty();
     }
 
