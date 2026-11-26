@@ -1,12 +1,17 @@
 package structures.repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import structures.types.DailyRepo;
 import structures.types.SimulationClock;
+import structures.types.datapoints.DataPoint;
 import structures.types.enums.DataType;
 
 public final class Repo {
@@ -45,5 +50,44 @@ public final class Repo {
 
     public SimulationClock getSimClk() {
         return simClk;
+    }
+
+    /**
+     * Walks backwards through GRID_LOAD daily repos from the slot strictly before
+     * (date, intervalIndex) and returns the first valid quantity found.
+     */
+    public Optional<BigDecimal> findPreviousGridLoadQuantity(final LocalDate date,
+            final int intervalIndex) {
+        TreeMap<LocalDate, DailyRepo> gridDays = data.get(DataType.GRID_LOAD);
+
+        DailyRepo sameDay = gridDays.get(date);
+        if (sameDay != null) {
+            Optional<DataPoint> earlierToday = sameDay.findLastNonNullBefore(intervalIndex);
+            if (earlierToday.isPresent()) {
+                return extractGridLoadQuantity(earlierToday.get());
+            }
+        }
+
+        for (DailyRepo priorDay : gridDays.headMap(date, false).descendingMap().values()) {
+            Optional<DataPoint> latestPrior = priorDay.findLastNonNull();
+            if (latestPrior.isPresent()) {
+                return extractGridLoadQuantity(latestPrior.get());
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * Extracts the grid load quantity from a DataPoint polymorphically without
+     * instanceof.
+     */
+    private Optional<BigDecimal> extractGridLoadQuantity(final DataPoint point) {
+        List<BigDecimal> box = new ArrayList<>(1);
+        point.acceptGridLoadQuantity(box::add);
+        if (box.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(box.getFirst());
     }
 }

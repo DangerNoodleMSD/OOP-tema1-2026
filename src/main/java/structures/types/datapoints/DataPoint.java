@@ -1,7 +1,9 @@
 package structures.types.datapoints;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -36,4 +38,18 @@ public abstract class DataPoint {
      * given JSON object node.
      */
     protected abstract void addSpecificFields(ObjectNode node);
+
+    /**
+     * Passes this point's grid load quantity to the consumer, if applicable.
+     */
+    public void acceptGridLoadQuantity(final Consumer<BigDecimal> consumer) {
+    }
+
+    public final LocalDate getDate() {
+        return date;
+    }
+
+    public final int getIntervalIndex() {
+        return intervalIndex;
+    }
 }
