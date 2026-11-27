@@ -8,12 +8,23 @@ import java.util.function.Consumer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import fileio.MarketDataInput;
 import structures.repository.Repo;
+import structures.types.TimeIntervalUtil;
+import structures.types.enums.DataType;
 
 public abstract class DataPoint {
-    private LocalDate date;
-    private String interval;
-    private Integer intervalIndex;
+    private final LocalDate date;
+    private final String interval;
+    private final int intervalIndex;
+    private final DataType type;
+
+    protected DataPoint(final DataType type, final MarketDataInput input) {
+        this.type = type;
+        this.date = LocalDate.parse(input.date());
+        this.interval = TimeIntervalUtil.normalizeInterval(input.interval());
+        this.intervalIndex = TimeIntervalUtil.computeIntervalIndex(this.interval);
+    }
 
     /**
      * Validates this data point's fields, returning a warning message if invalid or
@@ -51,5 +62,13 @@ public abstract class DataPoint {
 
     public final int getIntervalIndex() {
         return intervalIndex;
+    }
+
+    public final DataType getType() {
+        return type;
+    }
+
+    public final String getInterval() {
+        return interval;
     }
 }
