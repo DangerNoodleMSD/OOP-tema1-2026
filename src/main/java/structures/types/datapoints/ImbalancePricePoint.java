@@ -4,12 +4,22 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import fileio.MarketDataInput;
 import structures.repository.Repo;
+import structures.types.enums.DataType;
 
 public final class ImbalancePricePoint extends DataPoint {
-    private Double positiveImbalancePrice;
-    private Double negativeImbalancePrice;
+    private final Double positiveImbalancePrice;
+    private final Double negativeImbalancePrice;
     private static final Double MAX_ABS_PRICE = 15000.0;
+
+    public ImbalancePricePoint(final DataType type,
+            final MarketDataInput input,
+            final boolean premiumRequired) {
+        super(type, input, premiumRequired);
+        this.positiveImbalancePrice = input.positiveImbalancePrice();
+        this.negativeImbalancePrice = input.negativeImbalancePrice();
+    }
 
     @Override
     public Optional<String> validate(final Repo repo) {

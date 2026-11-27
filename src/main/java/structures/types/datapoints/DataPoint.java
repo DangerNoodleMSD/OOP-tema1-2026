@@ -18,12 +18,15 @@ public abstract class DataPoint {
     private final String interval;
     private final int intervalIndex;
     private final DataType type;
+    private final boolean premiumRequired;
 
-    protected DataPoint(final DataType type, final MarketDataInput input) {
+    protected DataPoint(final DataType type, final MarketDataInput input,
+            final boolean premiumRequired) {
         this.type = type;
         this.date = LocalDate.parse(input.date());
         this.interval = TimeIntervalUtil.normalizeInterval(input.interval());
         this.intervalIndex = TimeIntervalUtil.computeIntervalIndex(this.interval);
+        this.premiumRequired = premiumRequired;
     }
 
     /**
@@ -70,5 +73,9 @@ public abstract class DataPoint {
 
     public final String getInterval() {
         return interval;
+    }
+
+    public final boolean isPremiumRequired() {
+        return premiumRequired;
     }
 }

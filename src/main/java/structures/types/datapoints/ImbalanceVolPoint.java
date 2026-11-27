@@ -4,11 +4,21 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import fileio.MarketDataInput;
 import structures.repository.Repo;
+import structures.types.enums.DataType;
 
 public final class ImbalanceVolPoint extends DataPoint {
-    private Double positiveImbalanceVol;
-    private Double negativeImbalanceVol;
+    private final Double positiveImbalanceVol;
+    private final Double negativeImbalanceVol;
+
+    public ImbalanceVolPoint(final DataType type,
+            final MarketDataInput input,
+            final boolean premiumRequired) {
+        super(type, input, premiumRequired);
+        this.positiveImbalanceVol = input.positiveImbalanceVol();
+        this.negativeImbalanceVol = input.negativeImbalanceVol();
+    }
 
     @Override
     public Optional<String> validate(final Repo repo) {

@@ -6,11 +6,20 @@ import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import fileio.MarketDataInput;
 import structures.repository.Repo;
+import structures.types.enums.DataType;
 
 public final class GridLoadPoint extends DataPoint {
-    private BigDecimal quantity;
+    private final BigDecimal quantity;
     private static final BigDecimal MAX_VARIATION = new BigDecimal("10000");
+
+    public GridLoadPoint(final DataType type,
+            final MarketDataInput input,
+            final boolean premiumRequired) {
+        super(type, input, premiumRequired);
+        this.quantity = input.quantity();
+    }
 
     @Override
     public Optional<String> validate(final Repo repo) {

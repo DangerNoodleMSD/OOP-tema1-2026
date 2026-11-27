@@ -5,11 +5,21 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import fileio.MarketDataInput;
 import structures.repository.Repo;
+import structures.types.enums.DataType;
 
 public final class GridLoadPredictionPoint extends DataPoint {
-    private BigDecimal quantity;
-    private Double reservesRequiredMW;
+    private final BigDecimal quantity;
+    private final Double reservesRequiredMW;
+
+    public GridLoadPredictionPoint(final DataType type,
+            final MarketDataInput input,
+            final boolean premiumRequired) {
+        super(type, input, premiumRequired);
+        this.quantity = input.quantity();
+        this.reservesRequiredMW = input.reservesRequiredMW();
+    }
 
     @Override
     public Optional<String> validate(final Repo repo) {
