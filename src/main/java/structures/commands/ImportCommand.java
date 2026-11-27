@@ -1,29 +1,34 @@
 package structures.commands;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import fileio.CommandInput;
 import structures.repository.Repo;
 import structures.types.SimulationClock;
+import structures.types.datapoints.DataPoint;
 
-public final class ImportCommand implements Command {
-    private final LocalDateTime timestamp;
+public final class ImportCommand extends AbstractIngestionCommand {
 
     /**
-     * Constructs a ImportCommand from raw command input.
-     *
-     * @param cmd raw command input
+     * Constructs an ImportCommand from raw command input.
      */
     public ImportCommand(final CommandInput cmd) {
-        this.timestamp = LocalDateTime.parse(cmd.getTimestamp());
+        super("import", cmd);
     }
 
     @Override
     public void execute(final SimulationClock clock, final Repo repo, final ArrayNode output,
             final ObjectMapper mapper) {
+        clock.advanceTo(getTimestamp());
+        if (!clock.isIngestionAllowed()) {
+            return;
+        }
+        ingestPoints(repo, output, mapper);
+    }
 
+    @Override
+    protected void onValidationFailure(final Repo repo, final DataPoint point) {
+        repo.clearSlot(point.getType(), point.getDate(), point.getIntervalIndex());
     }
 }
