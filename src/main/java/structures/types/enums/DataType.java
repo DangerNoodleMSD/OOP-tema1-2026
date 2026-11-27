@@ -63,7 +63,7 @@ public enum DataType {
      * Automatically creates the right type of DataPoint when calling
      * dataType.createPoint(...)
      */
-    public abstract DataPoint createPoint(final MarketDataInput input);
+    public abstract DataPoint createPoint(MarketDataInput input);
 
     public boolean isPremiumRequired() {
         return premiumRequired;
