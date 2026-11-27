@@ -13,6 +13,7 @@ import java.util.TreeMap;
 import structures.templateio.TemplateLoader;
 import structures.types.DailyRepo;
 import structures.types.SimulationClock;
+import structures.types.TimeIntervalUtil;
 import structures.types.datapoints.DataPoint;
 import structures.types.enums.DataType;
 
@@ -93,21 +94,32 @@ public final class Repo {
         return Optional.of(box.getFirst());
     }
 
-    void save(final DataPoint point) {
+    /**
+     * Saves a validated data point into its corresponding daily repository,
+     * initializing the day from its JSON template if not yet present.
+     */
+    public void save(final DataPoint point) {
         TreeMap<LocalDate, DailyRepo> byDate = data.get(point.getType());
         DailyRepo day = byDate.computeIfAbsent(point.getDate(),
                 d -> new DailyRepo(point.getType(), d, TemplateLoader.load(point.getType())));
         day.put(point);
     }
 
-    void clearSlot(final DataType type, final LocalDate date, final int intervalIndex) {
+    /**
+     * Clears any stored data point at the given (type, date, intervalIndex) slot.
+     */
+    public void clearSlot(final DataType type, final LocalDate date, final int intervalIndex) {
         DailyRepo day = data.get(type).get(date);
         if (day != null) {
             day.clearSlot(intervalIndex);
         }
     }
 
-    Optional<DataPoint> findLatest(final DataType type) {
+    /**
+     * Returns the chronologically latest non-null data point stored for the given
+     * type.
+     */
+    public Optional<DataPoint> findLatest(final DataType type) {
         for (DailyRepo day : data.get(type).descendingMap().values()) {
             Optional<DataPoint> point = day.findLastNonNull();
             if (point.isPresent()) {
@@ -117,8 +129,33 @@ public final class Repo {
         return Optional.empty();
     }
 
-    TreeMap<LocalDate, List<DataPoint>> findInRange(final DataType type, final LocalDateTime start,
-            final LocalDateTime end) {
+    /**
+     * Finds all valid data points of the given type whose interval start lies in
+     * [start, end),
+     * grouped by ascending date and omitting days with no matching points.
+     */
+    public TreeMap<LocalDate, List<DataPoint>> findInRange(final DataType type,
+            final LocalDateTime start, final LocalDateTime end) {
+        TreeMap<LocalDate, List<DataPoint>> result = new TreeMap<>();
+        if (!end.isAfter(start)) {
+            return result;
+        }
 
+        LocalDate startDate = start.toLocalDate();
+        LocalDate endDate = end.toLocalDate();
+        for (DailyRepo day : data.get(type).subMap(startDate, true, endDate, true).values()) {
+            List<DataPoint> matching = new ArrayList<>();
+            for (DataPoint point : day.getAllNonNullPoints()) {
+                LocalDateTime pointStart = TimeIntervalUtil.intervalStart(
+                        day.getDate(), point.getIntervalIndex());
+                if (!pointStart.isBefore(start) && pointStart.isBefore(end)) {
+                    matching.add(point);
+                }
+            }
+            if (!matching.isEmpty()) {
+                result.put(day.getDate(), matching);
+            }
+        }
+        return result;
     }
 }
